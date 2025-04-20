@@ -1,3 +1,4 @@
+
 import type { SummaryPreferences } from '@/components/SummaryPreferences';
 
 interface SummarizeRequest {
@@ -62,31 +63,18 @@ export const generateSummary = async (text: string, preferences: SummaryPreferen
   }
 };
 
-export const mockGenerateSummary = async (text: string): Promise<string> => {
+export const mockGenerateSummary = async (text: string, preferences: SummaryPreferences): Promise<string> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 2000));
   
-  return `## Research Summary
-
-This paper explores the application of deep learning techniques to natural language processing tasks. The authors propose a novel architecture that combines transformer models with reinforcement learning to improve performance on text summarization tasks.
-
-### Key Findings:
-- The proposed model achieves state-of-the-art results on multiple benchmarks
-- Training efficiency improved by 35% over previous approaches
-- Human evaluators rated summaries as more coherent and informative
-
-### Methodology:
-The research employed a mixed-methods approach with both quantitative evaluation on standard datasets and qualitative assessment through expert review.
-
-### Implications:
-These findings suggest that hybrid architectures may offer significant advantages for complex language tasks, particularly when processing lengthy documents with intricate information structures.`;
+  return `This research paper explores the application of deep learning techniques to natural language processing tasks. The authors propose a novel architecture that combines transformer models with reinforcement learning to improve performance on text summarization tasks. Their findings demonstrate a 35% improvement in both efficiency and accuracy compared to previous state-of-the-art approaches. The methodology employed a rigorous experimental design, testing the model across multiple datasets including news articles, scientific papers, and literary texts. Results consistently showed that the hybrid architecture outperforms traditional models, particularly when processing complex, technical content. The researchers conclude that this approach represents a significant advancement in automated text analysis and could have far-reaching implications for applications in content creation, academic research assistance, and information retrieval systems. Future work will focus on expanding the model's capabilities to handle multilingual inputs and improving its contextual understanding of domain-specific terminology.`;
 };
 
-export const summarizeText = async (text: string): Promise<string> => {
+export const summarizeText = async (text: string, preferences: SummaryPreferences): Promise<string> => {
   try {
-    return await generateSummary(text);
+    return await generateSummary(text, preferences);
   } catch (error) {
     console.warn('Falling back to mock implementation', error);
-    return await mockGenerateSummary(text);
+    return await mockGenerateSummary(text, preferences);
   }
 };

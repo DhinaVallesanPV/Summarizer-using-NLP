@@ -74,8 +74,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onTextExtracted, setIsLoadi
     } catch (error) {
       console.error('Error extracting text:', error);
       toast.error('Failed to process file');
-    } finally {
-      setIsLoading(false);
     }
   };
   
@@ -84,28 +82,30 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onTextExtracted, setIsLoadi
   };
   
   return (
-    <Card className="w-full shadow-md animate-fade-in">
-      <CardHeader>
+    <Card className="w-full shadow-md animate-fade-in bg-white border-indigo-100">
+      <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-t-lg">
         <CardTitle className="flex items-center gap-2">
           <FileUp className="w-5 h-5" />
           <span>Upload Research Paper</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <div
-          className={`file-drop-area ${isDragging ? 'active' : ''} ${file ? 'bg-blue-50' : ''}`}
+          className={`file-drop-area border-2 border-dashed rounded-lg p-8 transition-all duration-200 ${
+            isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'
+          } ${file ? 'bg-blue-50' : ''}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
           {!file ? (
             <div className="text-center">
-              <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
-              <h3 className="font-medium mb-1">Drag & drop your research paper here</h3>
-              <p className="text-sm text-muted-foreground mb-4">Support for PDF and TXT files</p>
+              <FileText className="mx-auto h-12 w-12 text-indigo-400 mb-2" />
+              <h3 className="font-medium mb-1 text-indigo-800">Drag & drop your research paper here</h3>
+              <p className="text-sm text-indigo-600 mb-4">Support for PDF and TXT files</p>
               <div className="inline-flex justify-center">
                 <label className="cursor-pointer">
-                  <Button variant="outline" type="button">
+                  <Button variant="outline" type="button" className="border-indigo-300 text-indigo-700 hover:bg-indigo-50">
                     Browse Files
                   </Button>
                   <input 
@@ -121,13 +121,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onTextExtracted, setIsLoadi
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 {file.type === 'application/pdf' ? (
-                  <Book className="h-8 w-8 text-brand-500" />
+                  <Book className="h-8 w-8 text-indigo-600" />
                 ) : (
-                  <FileText className="h-8 w-8 text-brand-500" />
+                  <FileText className="h-8 w-8 text-indigo-600" />
                 )}
                 <div>
-                  <p className="font-medium truncate">{file.name}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-medium truncate text-indigo-800">{file.name}</p>
+                  <p className="text-sm text-indigo-600">
                     {(file.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
@@ -136,6 +136,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onTextExtracted, setIsLoadi
                 variant="ghost" 
                 size="icon"
                 onClick={clearFile}
+                className="hover:bg-red-50 hover:text-red-500"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -146,10 +147,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onTextExtracted, setIsLoadi
       <CardFooter>
         <Button 
           onClick={handleUpload} 
-          className="w-full"
+          className="w-full bg-indigo-600 hover:bg-indigo-700"
           disabled={!file}
         >
-          Summarize Paper
+          <FileText className="mr-2 h-4 w-4" /> Summarize Paper
         </Button>
       </CardFooter>
     </Card>
