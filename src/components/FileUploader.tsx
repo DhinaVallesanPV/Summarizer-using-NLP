@@ -82,8 +82,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onTextExtracted, setIsLoadi
   };
   
   return (
-    <Card className="w-full shadow-md animate-fade-in bg-white border-indigo-100">
-      <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-t-lg">
+    <Card className="w-full shadow-md bg-white/80 backdrop-blur-sm border-indigo-100 hover:bg-white/90 transition-all duration-300">
+      <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-t-lg">
         <CardTitle className="flex items-center gap-2">
           <FileUp className="w-5 h-5" />
           <span>Upload Research Paper</span>
@@ -91,9 +91,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onTextExtracted, setIsLoadi
       </CardHeader>
       <CardContent className="pt-4">
         <div
-          className={`file-drop-area border-2 border-dashed rounded-lg p-8 transition-all duration-200 ${
-            isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'
-          } ${file ? 'bg-blue-50' : ''}`}
+          className={`file-drop-area border-2 border-dashed rounded-lg p-8 transition-all duration-300 ${
+            isDragging ? 'border-purple-500 bg-purple-50/50' : 'border-gray-300'
+          } ${file ? 'bg-indigo-50/50' : ''} hover:border-purple-400 hover:bg-purple-50/30`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -147,7 +147,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onTextExtracted, setIsLoadi
       <CardFooter>
         <Button 
           onClick={handleUpload} 
-          className="w-full bg-indigo-600 hover:bg-indigo-700"
+          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02]"
           disabled={!file}
         >
           <FileText className="mr-2 h-4 w-4" /> Summarize Paper

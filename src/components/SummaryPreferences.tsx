@@ -19,8 +19,8 @@ const SummaryPreferences: React.FC<SummaryPreferencesProps> = ({
   onPreferencesChange,
 }) => {
   return (
-    <Card className="w-full shadow-md bg-white border-indigo-100 animate-fade-in">
-      <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-t-lg">
+    <Card className="w-full shadow-md bg-white/80 backdrop-blur-sm border-indigo-100 hover:bg-white/90 transition-all duration-300">
+      <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-t-lg">
         <CardTitle className="text-lg flex items-center gap-2">
           <Settings className="w-5 h-5" />
           <span>Summary Preferences</span>
@@ -30,7 +30,7 @@ const SummaryPreferences: React.FC<SummaryPreferencesProps> = ({
         <div className="space-y-3">
           <div className="flex items-center gap-2 mb-2 text-indigo-800">
             <FileText className="h-4 w-4" />
-            <Label className="font-medium">Summary Length (words)</Label>
+            <Label className="font-medium">Summary Length</Label>
           </div>
           <RadioGroup
             value={preferences.length}
@@ -39,7 +39,7 @@ const SummaryPreferences: React.FC<SummaryPreferencesProps> = ({
             }
             className="flex flex-col space-y-2"
           >
-            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors">
+            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors cursor-pointer">
               <RadioGroupItem value="300" id="words-300" className="text-indigo-600 border-indigo-400" />
               <Label htmlFor="words-300" className="cursor-pointer w-full">
                 <span className="font-medium">300 words</span>
