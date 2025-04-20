@@ -4,6 +4,7 @@ import Header from '@/components/Layout/Header';
 import { useAuthStore } from '@/store/authStore';
 import FileUploader from '@/components/FileUploader';
 import SummaryResult from '@/components/SummaryResult';
+import SummaryPreferences, { SummaryPreferences as SummaryPreferencesType } from '@/components/SummaryPreferences';
 import { summarizeText } from '@/api/llmClient';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -16,6 +17,10 @@ const Home = () => {
   const [summary, setSummary] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
+  const [preferences, setPreferences] = useState<SummaryPreferencesType>({
+    length: "500",
+    fluency: "standard"
+  });
   
   useEffect(() => {
     if (isLoading) {
@@ -48,7 +53,7 @@ const Home = () => {
   const handleGenerateSummary = async () => {
     setIsLoading(true);
     try {
-      const generatedSummary = await summarizeText(paperText);
+      const generatedSummary = await summarizeText(paperText, preferences);
       setSummary(generatedSummary);
     } catch (error) {
       console.error('Error generating summary:', error);
@@ -83,10 +88,14 @@ const Home = () => {
         )}
         
         <div className="grid md:grid-cols-2 gap-8">
-          <div>
+          <div className="space-y-6">
             <FileUploader 
               onTextExtracted={handleTextExtracted} 
               setIsLoading={setIsLoading}
+            />
+            <SummaryPreferences
+              preferences={preferences}
+              onPreferencesChange={setPreferences}
             />
           </div>
           

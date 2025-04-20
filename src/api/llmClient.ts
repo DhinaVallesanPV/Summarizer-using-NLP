@@ -1,3 +1,4 @@
+import type { SummaryPreferences } from '@/components/SummaryPreferences';
 
 interface SummarizeRequest {
   text: string;
@@ -7,18 +8,28 @@ interface SummarizeResponse {
   summary: string;
 }
 
-export const generateSummary = async (text: string): Promise<string> => {
+export const generateSummary = async (text: string, preferences: SummaryPreferences): Promise<string> => {
   try {
     const apiUrl = 'http://192.168.29.191:1234/v1/completions';
     
-    const prompt = `
-    You are an expert research paper summarizer. Create a concise summary of the following research paper, focusing on:
-    1. Main research question and objectives
-    2. Methodology used
-    3. Key findings and results
-    4. Important conclusions and implications
+    const fluencyGuide = {
+      basic: "Use simple and clear language, avoiding technical terms where possible.",
+      standard: "Use a balanced mix of technical and accessible language.",
+      professional: "Use academic language and technical terminology appropriate for scholarly writing."
+    };
     
-    Keep the summary clear, informative and well-structured.
+    const prompt = `
+    You are an expert research paper summarizer. Create a coherent, single-paragraph summary of the following research paper in approximately ${preferences.length} words. 
+    
+    Style Guide: ${fluencyGuide[preferences.fluency]}
+    
+    Focus on creating a flowing narrative that covers:
+    - The main research question and objectives
+    - Key methodology used
+    - Important findings and results
+    - Significant conclusions and implications
+    
+    Write the summary as a cohesive paragraph that reads naturally and maintains logical flow between ideas.
     
     Research paper:
     ${text}
@@ -51,7 +62,6 @@ export const generateSummary = async (text: string): Promise<string> => {
   }
 };
 
-// Mock function for local development in case the real API is unavailable
 export const mockGenerateSummary = async (text: string): Promise<string> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 2000));
@@ -72,7 +82,6 @@ The research employed a mixed-methods approach with both quantitative evaluation
 These findings suggest that hybrid architectures may offer significant advantages for complex language tasks, particularly when processing lengthy documents with intricate information structures.`;
 };
 
-// Use the mock function if we can't reach the real API
 export const summarizeText = async (text: string): Promise<string> => {
   try {
     return await generateSummary(text);
