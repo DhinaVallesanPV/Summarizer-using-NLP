@@ -14,7 +14,7 @@ const Header = () => {
   return (
     <header className="bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center h-14 px-4">
-        <h1 className="font-display text-xl font-bold gradient-text">PaperScribe</h1>
+        <h1 className="font-display text-xl font-bold gradient-text">Summarizer</h1>
         
         {isAuthenticated && user && (
           <DropdownMenu>
