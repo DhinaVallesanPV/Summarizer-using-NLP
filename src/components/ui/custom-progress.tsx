@@ -13,8 +13,8 @@ export function CustomProgress({
 }: CustomProgressProps) {
   return (
     <Progress 
-      className={cn("bg-blue-100", className)} 
-      indicatorClassName={cn("bg-indigo-600", indicatorClassName)}
+      className={cn("bg-accent h-2 rounded-full", className)} 
+      indicatorClassName={cn("gradient-bg rounded-full transition-all duration-500", indicatorClassName)}
       {...props} 
     />
   );
