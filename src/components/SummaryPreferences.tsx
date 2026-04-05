@@ -1,12 +1,14 @@
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, FileText, MessageSquare } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { Sliders, FileText, MessageSquare, Pencil } from "lucide-react";
 
 export interface SummaryPreferences {
-  length: "300" | "500" | "700";
-  fluency: "basic" | "standard" | "professional";
+  length: string;
+  fluency: "professional" | "simplified" | "technical";
+  customLength?: number;
 }
 
 interface SummaryPreferencesProps {
@@ -14,93 +16,143 @@ interface SummaryPreferencesProps {
   onPreferencesChange: (preferences: SummaryPreferences) => void;
 }
 
-const SummaryPreferences: React.FC<SummaryPreferencesProps> = ({
+const SummaryPreferencesPanel: React.FC<SummaryPreferencesProps> = ({
   preferences,
   onPreferencesChange,
 }) => {
-  return (
-    <Card className="w-full shadow-md bg-white/80 backdrop-blur-sm border-indigo-100 hover:bg-white/90 transition-all duration-300">
-      <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-t-lg">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Settings className="w-5 h-5" />
-          <span>Summary Preferences</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6 pt-4">
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 mb-2 text-indigo-800">
-            <FileText className="h-4 w-4" />
-            <Label className="font-medium">Summary Length</Label>
-          </div>
-          <RadioGroup
-            value={preferences.length}
-            onValueChange={(value) =>
-              onPreferencesChange({ ...preferences, length: value as "300" | "500" | "700" })
-            }
-            className="flex flex-col space-y-2"
-          >
-            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors cursor-pointer">
-              <RadioGroupItem value="300" id="words-300" className="text-indigo-600 border-indigo-400" />
-              <Label htmlFor="words-300" className="cursor-pointer w-full">
-                <span className="font-medium">300 words</span>
-                <span className="text-sm text-indigo-600 ml-2">(Brief)</span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors">
-              <RadioGroupItem value="500" id="words-500" className="text-indigo-600 border-indigo-400" />
-              <Label htmlFor="words-500" className="cursor-pointer w-full">
-                <span className="font-medium">500 words</span>
-                <span className="text-sm text-indigo-600 ml-2">(Standard)</span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors">
-              <RadioGroupItem value="700" id="words-700" className="text-indigo-600 border-indigo-400" />
-              <Label htmlFor="words-700" className="cursor-pointer w-full">
-                <span className="font-medium">700 words</span>
-                <span className="text-sm text-indigo-600 ml-2">(Detailed)</span>
-              </Label>
-            </div>
-          </RadioGroup>
-        </div>
+  const [useCustom, setUseCustom] = useState(preferences.length === "custom");
+  const [customValue, setCustomValue] = useState<number>(preferences.customLength || 500);
+  const [customError, setCustomError] = useState("");
 
-        <div className="space-y-3 pt-2">
-          <div className="flex items-center gap-2 mb-2 text-indigo-800">
-            <MessageSquare className="h-4 w-4" />
-            <Label className="font-medium">Writing Style</Label>
+  const handleLengthChange = (value: string) => {
+    if (value === "custom") {
+      setUseCustom(true);
+      onPreferencesChange({ ...preferences, length: "custom", customLength: customValue });
+    } else {
+      setUseCustom(false);
+      onPreferencesChange({ ...preferences, length: value, customLength: undefined });
+    }
+  };
+
+  const handleCustomChange = (val: string) => {
+    const num = parseInt(val);
+    if (isNaN(num)) {
+      setCustomError("Enter a valid number");
+      return;
+    }
+    setCustomValue(num);
+    if (num < 500) {
+      setCustomError("Minimum 500 words");
+    } else if (num > 3500) {
+      setCustomError("Maximum 3500 words");
+    } else {
+      setCustomError("");
+      onPreferencesChange({ ...preferences, length: "custom", customLength: num });
+    }
+  };
+
+  const lengthOptions = [
+    { value: "400", label: "300–500", desc: "Brief overview" },
+    { value: "800", label: "800", desc: "Standard" },
+    { value: "1500", label: "1500", desc: "Detailed" },
+    { value: "custom", label: "Custom", desc: "500–3500 words" },
+  ];
+
+  const toneOptions = [
+    { value: "professional", label: "Professional", desc: "Formal, research-style", icon: "🎓" },
+    { value: "simplified", label: "Simplified", desc: "Easy to understand", icon: "💡" },
+    { value: "technical", label: "Technical", desc: "Preserve terminology", icon: "⚙️" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Length Control */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center">
+            <FileText className="h-3.5 w-3.5 text-primary-foreground" />
           </div>
-          <RadioGroup
-            value={preferences.fluency}
-            onValueChange={(value) =>
-              onPreferencesChange({ ...preferences, fluency: value as "basic" | "standard" | "professional" })
-            }
-            className="flex flex-col space-y-2"
-          >
-            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors">
-              <RadioGroupItem value="basic" id="fluency-basic" className="text-indigo-600 border-indigo-400" />
-              <Label htmlFor="fluency-basic" className="cursor-pointer w-full">
-                <span className="font-medium">Basic</span>
-                <span className="text-sm text-indigo-600 ml-2">(Simple and clear)</span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors">
-              <RadioGroupItem value="standard" id="fluency-standard" className="text-indigo-600 border-indigo-400" />
-              <Label htmlFor="fluency-standard" className="cursor-pointer w-full">
-                <span className="font-medium">Standard</span>
-                <span className="text-sm text-indigo-600 ml-2">(Balanced)</span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-indigo-50 transition-colors">
-              <RadioGroupItem value="professional" id="fluency-professional" className="text-indigo-600 border-indigo-400" />
-              <Label htmlFor="fluency-professional" className="cursor-pointer w-full">
-                <span className="font-medium">Professional</span>
-                <span className="text-sm text-indigo-600 ml-2">(Academic style)</span>
-              </Label>
-            </div>
-          </RadioGroup>
+          <Label className="font-display font-semibold text-sm text-foreground">Summary Length</Label>
         </div>
-      </CardContent>
-    </Card>
+        <RadioGroup
+          value={useCustom ? "custom" : preferences.length}
+          onValueChange={handleLengthChange}
+          className="grid grid-cols-2 gap-2"
+        >
+          {lengthOptions.map((opt) => (
+            <label
+              key={opt.value}
+              htmlFor={`len-${opt.value}`}
+              className={`relative flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:border-primary/50 ${
+                (useCustom ? "custom" : preferences.length) === opt.value
+                  ? "border-primary bg-accent shadow-sm"
+                  : "border-border bg-card hover:bg-accent/30"
+              }`}
+            >
+              <RadioGroupItem value={opt.value} id={`len-${opt.value}`} className="sr-only" />
+              <div>
+                <span className="font-medium text-sm text-foreground">{opt.label}</span>
+                <span className="block text-xs text-muted-foreground">{opt.desc}</span>
+              </div>
+            </label>
+          ))}
+        </RadioGroup>
+        {useCustom && (
+          <div className="mt-3 animate-fade-in">
+            <div className="relative">
+              <Pencil className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                type="number"
+                min={500}
+                max={3500}
+                value={customValue}
+                onChange={(e) => handleCustomChange(e.target.value)}
+                className="pl-9 text-sm"
+                placeholder="Enter word count (500-3500)"
+              />
+            </div>
+            {customError && <p className="text-xs text-destructive mt-1">{customError}</p>}
+          </div>
+        )}
+      </div>
+
+      {/* Tone Selection */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center">
+            <MessageSquare className="h-3.5 w-3.5 text-primary-foreground" />
+          </div>
+          <Label className="font-display font-semibold text-sm text-foreground">Tone</Label>
+        </div>
+        <RadioGroup
+          value={preferences.fluency}
+          onValueChange={(value) =>
+            onPreferencesChange({ ...preferences, fluency: value as "professional" | "simplified" | "technical" })
+          }
+          className="space-y-2"
+        >
+          {toneOptions.map((opt) => (
+            <label
+              key={opt.value}
+              htmlFor={`tone-${opt.value}`}
+              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:border-primary/50 ${
+                preferences.fluency === opt.value
+                  ? "border-primary bg-accent shadow-sm"
+                  : "border-border bg-card hover:bg-accent/30"
+              }`}
+            >
+              <RadioGroupItem value={opt.value} id={`tone-${opt.value}`} className="sr-only" />
+              <span className="text-lg">{opt.icon}</span>
+              <div>
+                <span className="font-medium text-sm text-foreground">{opt.label}</span>
+                <span className="block text-xs text-muted-foreground">{opt.desc}</span>
+              </div>
+            </label>
+          ))}
+        </RadioGroup>
+      </div>
+    </div>
   );
 };
 
-export default SummaryPreferences;
+export default SummaryPreferencesPanel;

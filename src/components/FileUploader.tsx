@@ -1,9 +1,8 @@
 
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { FileUp, Book, FileText, X } from 'lucide-react';
+import { Upload, FileText, X, File } from 'lucide-react';
 import { extractTextFromFile } from '@/utils/fileUtils';
 
 interface FileUploaderProps {
@@ -28,132 +27,118 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onTextExtracted, setIsLoadi
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    
     const files = e.dataTransfer.files;
-    if (files.length) {
-      handleFileSelect(files[0]);
-    }
+    if (files.length) handleFileSelect(files[0]);
   }, []);
   
-  const handleFileSelect = (selectedFile: File) => {
-    // Check file type
-    const allowedTypes = ['application/pdf', 'text/plain'];
-    if (!allowedTypes.includes(selectedFile.type)) {
-      toast.error('Please upload a PDF or TXT file');
+  const handleFileSelect = (selectedFile: globalThis.File) => {
+    if (selectedFile.type !== 'application/pdf') {
+      toast.error('Only PDF files are accepted');
       return;
     }
-    
-    // Check file size (max 10MB)
-    if (selectedFile.size > 10 * 1024 * 1024) {
-      toast.error('File too large, please upload a file smaller than 10MB');
+    if (selectedFile.size > 20 * 1024 * 1024) {
+      toast.error('File too large — maximum 20 MB');
       return;
     }
-    
     setFile(selectedFile);
-    toast.success(`File "${selectedFile.name}" selected`);
+    toast.success(`"${selectedFile.name}" selected`);
+    
+    // Auto-extract text
+    setIsLoading(true);
+    extractTextFromFile(selectedFile)
+      .then((text) => {
+        onTextExtracted(text);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error extracting text:', err);
+        toast.error('Failed to process file');
+        setIsLoading(false);
+      });
   };
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileSelect(files[0]);
-    }
+    if (files && files.length > 0) handleFileSelect(files[0]);
   };
   
-  const handleUpload = async () => {
-    if (!file) {
-      toast.error('Please select a file first');
-      return;
-    }
-    
-    setIsLoading(true);
-    try {
-      const text = await extractTextFromFile(file);
-      onTextExtracted(text);
-      toast.success('File processed successfully');
-    } catch (error) {
-      console.error('Error extracting text:', error);
-      toast.error('Failed to process file');
-    }
-  };
-  
-  const clearFile = () => {
-    setFile(null);
-  };
+  const clearFile = () => setFile(null);
   
   return (
-    <Card className="w-full shadow-md bg-white/80 backdrop-blur-sm border-indigo-100 hover:bg-white/90 transition-all duration-300">
-      <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-t-lg">
-        <CardTitle className="flex items-center gap-2">
-          <FileUp className="w-5 h-5" />
-          <span>Upload Research Paper</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-4">
-        <div
-          className={`file-drop-area border-2 border-dashed rounded-lg p-8 transition-all duration-300 ${
-            isDragging ? 'border-purple-500 bg-purple-50/50' : 'border-gray-300'
-          } ${file ? 'bg-indigo-50/50' : ''} hover:border-purple-400 hover:bg-purple-50/30`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          {!file ? (
-            <div className="text-center">
-              <FileText className="mx-auto h-12 w-12 text-indigo-400 mb-2" />
-              <h3 className="font-medium mb-1 text-indigo-800">Drag & drop your research paper here</h3>
-              <p className="text-sm text-indigo-600 mb-4">Support for PDF and TXT files</p>
-              <div className="inline-flex justify-center">
-                <label className="cursor-pointer">
-                  <Button variant="outline" type="button" className="border-indigo-300 text-indigo-700 hover:bg-indigo-50">
-                    Browse Files
-                  </Button>
-                  <input 
-                    type="file" 
-                    className="hidden" 
-                    accept=".pdf,.txt" 
-                    onChange={handleFileChange}
-                  />
-                </label>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {file.type === 'application/pdf' ? (
-                  <Book className="h-8 w-8 text-indigo-600" />
-                ) : (
-                  <FileText className="h-8 w-8 text-indigo-600" />
-                )}
-                <div>
-                  <p className="font-medium truncate text-indigo-800">{file.name}</p>
-                  <p className="text-sm text-indigo-600">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                </div>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={clearFile}
-                className="hover:bg-red-50 hover:text-red-500"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
+    <div className="glass-card rounded-xl p-5 h-full">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center">
+          <Upload className="h-4 w-4 text-primary-foreground" />
         </div>
-      </CardContent>
-      <CardFooter>
-        <Button 
-          onClick={handleUpload} 
-          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02]"
-          disabled={!file}
-        >
-          <FileText className="mr-2 h-4 w-4" /> Summarize Paper
-        </Button>
-      </CardFooter>
-    </Card>
+        <h2 className="font-display font-semibold text-foreground">Upload Paper</h2>
+      </div>
+
+      <div
+        className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-300 cursor-pointer group ${
+          isDragging 
+            ? 'border-primary bg-accent/50 scale-[1.01]' 
+            : file 
+              ? 'border-primary/30 bg-accent/20' 
+              : 'border-border hover:border-primary/40 hover:bg-accent/10'
+        }`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => !file && document.getElementById('file-input')?.click()}
+      >
+        {!file ? (
+          <div className="text-center">
+            <div className="w-14 h-14 rounded-2xl gradient-bg-subtle mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FileText className="h-7 w-7 text-primary" />
+            </div>
+            <h3 className="font-display font-medium text-foreground mb-1">
+              Drop your PDF here
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              or click to browse • PDF only • Max 20 MB
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              type="button"
+              className="border-primary/30 text-primary hover:bg-accent"
+              onClick={(e) => { e.stopPropagation(); document.getElementById('file-input')?.click(); }}
+            >
+              Browse Files
+            </Button>
+            <input 
+              id="file-input"
+              type="file" 
+              className="hidden" 
+              accept=".pdf" 
+              onChange={handleFileChange}
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center">
+                <FileText className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <p className="font-medium text-sm text-foreground truncate max-w-[200px]">{file.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {(file.size / 1024 / 1024).toFixed(2)} MB • Ready
+                </p>
+              </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={(e) => { e.stopPropagation(); clearFile(); }}
+              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
